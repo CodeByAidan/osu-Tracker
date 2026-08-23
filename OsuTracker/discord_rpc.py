@@ -156,6 +156,7 @@ class DiscordRPC:
                 if loop is not None and not loop.is_closed():
                     loop.run_until_complete(presence.read_output())
         except Exception:
+            print("Error occurred while closing Discord RPC.")
             pass
         finally:
             if writer is not None:
