@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osu-tracker"
+version = "0.1.0"
+description = "Track osu! game statistics from Tosu."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["pydantic>=2.7,<3", "pypresence>=4.3,<5", "requests>=2.31,<3"]
+
+[project.scripts]
+osu-tracker = "OsuTracker.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["OsuTracker*"]
