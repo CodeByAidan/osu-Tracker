@@ -22,9 +22,9 @@ A Python application that tracks osu! in-game statistics and displays as a Disco
    pip install -e .
    ```
 
-5. **Start Tosu!** and confirm that its local API is available.
+5. **Start Tosu!** and confirm that its local API is available (typically http://127.0.0.1:24050/)
 
-6. Create a Discord application at the [Discord Developer Portal](https://discord.com/developers/applications), copy its Application ID, and set it in your shell:
+6. Create a Discord application at the [Discord Developer Portal](https://discord.com/developers/applications), copy its Client ID (*Found in "Overview/OAuth2"*), and set it in your shell:
 
    ```powershell
    $env:DISCORD_CLIENT_ID = "your-application-id"
