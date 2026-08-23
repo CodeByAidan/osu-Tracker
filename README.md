@@ -1,6 +1,8 @@
 # osu!Tracker
 
 #### **_Better_** _Discord Rich Presence for osu!_
+<img width="429" height="180" alt="image" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
+<img width="411" height="183" alt="image" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
 
 A Python application that tracks osu! in-game statistics and displays as a Discord Rich Presence.
 
