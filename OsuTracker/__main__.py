@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import time
+from textwrap import dedent
 from typing import Any
 
 import requests
@@ -66,28 +67,54 @@ def display_main_stats(data: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Track osu! data from Tosu.")
-    parser.add_argument("--endpoint", default=TOSU_ENDPOINT, help="Tosu JSON endpoint")
-    parser.add_argument(
-        "--client-id",
-        default=os.getenv("DISCORD_CLIENT_ID"),
-        help="Discord application client ID (default: DISCORD_CLIENT_ID)",
+    parser = argparse.ArgumentParser(
+        prog="osu-tracker",
+        description="Show live osu! information from Tosu and publish it to Discord.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=dedent(
+            """\
+            Examples:
+              osu-tracker
+              osu-tracker --client-id 123456789012345678
+              osu-tracker --endpoint http://127.0.0.1:24050/json
+              osu-tracker --once --no-discord
+            """
+        ),
     )
-    parser.add_argument(
+
+    tosu_options = parser.add_argument_group("Tosu connection")
+    tosu_options.add_argument(
+        "--endpoint",
+        metavar="URL",
+        default=TOSU_ENDPOINT,
+        help=f"Tosu JSON API URL (default: {TOSU_ENDPOINT}).",
+    )
+
+    discord_options = parser.add_argument_group("Discord Rich Presence")
+    discord_options.add_argument(
+        "--client-id",
+        metavar="APP_ID",
+        default=os.getenv("DISCORD_CLIENT_ID"),
+        help="Discord application ID; defaults to DISCORD_CLIENT_ID when set.",
+    )
+    discord_options.add_argument(
         "--no-discord",
         action="store_true",
-        help="Disable Discord Rich Presence",
+        help="Run without publishing a Discord activity.",
     )
-    parser.add_argument(
+
+    run_options = parser.add_argument_group("Run behavior")
+    run_options.add_argument(
         "--interval",
+        metavar="SECONDS",
         type=float,
         default=DEFAULT_INTERVAL,
-        help="Seconds between updates (default: %(default)s)",
+        help=f"Seconds between updates (default: {DEFAULT_INTERVAL:g}).",
     )
-    parser.add_argument(
+    run_options.add_argument(
         "--once",
         action="store_true",
-        help="Fetch and display one snapshot, then exit",
+        help="Fetch one Tosu snapshot, print it, then exit.",
     )
     return parser.parse_args()
 

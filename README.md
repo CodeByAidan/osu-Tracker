@@ -45,7 +45,7 @@ A Python application that tracks osu! in-game statistics and displays as a Disco
 > ![Osu! in-game Discord Presence](images/image.png)
 
 ```bash
-python -m OsuTracker (--endpoint ENDPOINT) (--interval INTERVAL) (--once) (--no-discord) (--client-id CLIENT_ID)
+python -m OsuTracker
 ```
 
 After installation, the console script can also be used:
@@ -54,9 +54,16 @@ After installation, the console script can also be used:
 osu-tracker
 ```
 
-The tracker polls Tosu every five seconds and prints the latest JSON snapshot.
-Use `python -m OsuTracker --once` to fetch one snapshot and exit, or pass
-`--endpoint` and `--interval` to override the defaults.
+The tracker polls Tosu every five seconds and prints the latest game state.
+Use `python -m OsuTracker --help` for the full command reference.
+
+| Command | What it does |
+| --- | --- |
+| `python -m OsuTracker` | Run with the default Tosu endpoint and a 5-second update interval. |
+| `python -m OsuTracker --once --no-discord` | Print one Tosu snapshot without updating Discord. |
+| `python -m OsuTracker --endpoint URL` | Use a different Tosu JSON API URL. |
+| `python -m OsuTracker --interval SECONDS` | Change how often the tracker polls Tosu. |
+| `python -m OsuTracker --client-id APP_ID` | Use this Discord application instead of `DISCORD_CLIENT_ID`. |
 
 With `DISCORD_CLIENT_ID` set, the tracker also publishes the current map,
 difficulty, accuracy, and PP to Discord. While a beatmap is playing, its cover
