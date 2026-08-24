@@ -5,87 +5,72 @@
 <img width="429" height="180" alt="image" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
 <img width="411" height="183" alt="image" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
 
-A Python application that tracks osu! in-game statistics and displays as a Discord Rich Presence.
+A Windows desktop app that tracks osu! in-game statistics and displays them in
+Discord Rich Presence.
 
 ## Requirements
 
-- Python 3.10 or higher
+- Windows 10 or newer (sorry, no Linux or macOS support right now)
 - [Tosu!](https://tosu.app/) installed on your system
 
 ## Installation
 
-1. Install Python 3.10 or higher from [python.org](https://www.python.org/downloads/).
-2. Clone this repository or download the source code as a ZIP file and extract it.
-3. Open a terminal or command prompt in the project directory.
-4. Install the package in editable mode:
-
-   ```bash
-   pip install -e .
-   ```
-
-5. **Start Tosu!** and confirm that its local API is available (typically http://127.0.0.1:24050/)
-
-6. Create a Discord application (Name it whatever you want as the activity name, so in my case, I named it `osu!Tracker`) at the [Discord Developer Portal](https://discord.com/developers/applications), copy its Client ID (_Found in "Overview/OAuth2"_), and set it in your shell:
-
-   ```powershell
-   $env:DISCORD_CLIENT_ID = "your-application-id"
-   ```
-
-   or if passing it as a command-line argument, use:
-
-   ```powershell
-   python -m OsuTracker --client-id "your-application-id"
-   ```
-
-## Run the application:
+1. Download `osu-tracker.exe` from the latest [GitHub release](https://github.com/user-attachments/releases) or [build it yourself](#building-a-executable).
+2. Start Tosu! and confirm its local API is available (normally
+   `http://127.0.0.1:24050/json`).
+3. Open `osu-tracker.exe`.
+4. Enter your Discord application ID in the app [^1], if you want Discord Rich
+   Presence, then select **Save settings** and **Start tracking**.
 
 > **Important:** Turn off Osu!'s in-game Discord Rich Presence before running
 > osu!Tracker to prevent conflicting activities.
 >
-> ![Osu! in-game Discord Presence](images/image.png)
+> ![Osu! in-game Discord Presence](images/osu-in-game-rpc-location.png)
 
-```bash
-python -m OsuTracker
+[^1]:
+    Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications)
+    and copy its Client ID from **OAuth2**. ![client-id](images/client-id-discord-location.png)
+
+## Use the app
+
+The Discord **Details** and **State** dropdowns can use the gameplay summary, activity
+state, map metadata, mods, accuracy, PP, combo, score, player name, star
+rating, or BPM. Settings can be changed at any time and apply on the next
+start (or after a restart).
+
+![osu!Tracker settings](images/osu-tracker-settings.png)
+
+## Command line (optional)
+
+The normal command opens the desktop app. For automation and troubleshooting,
+the previous command-line interface remains available:
+
+```powershell
+osu-tracker-cli --once --no-discord
 ```
 
-After installation, the console script can also be used:
+Run `osu-tracker-cli --help` for all CLI options. `--configure` and
+`--show-settings` continue to manage the same saved settings file.
 
-```bash
-osu-tracker
+## Building a executable
+
+Clone the repository, open PowerShell in the project folder, then run:
+
+```powershell
+.\scripts\build-windows.ps1
 ```
 
-The tracker polls Tosu every five seconds and prints the latest game state.
-Use `python -m OsuTracker --help` for the full command reference.
+The script installs the project and PyInstaller, then creates the executable at:
 
-| Command                                    | What it does                                                       |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| `python -m OsuTracker`                     | Run with the default Tosu endpoint and a 5-second update interval. |
-| `python -m OsuTracker --once --no-discord` | Print one Tosu snapshot without updating Discord.                  |
-| `python -m OsuTracker --endpoint URL`      | Use a different Tosu JSON API URL.                                 |
-| `python -m OsuTracker --interval SECONDS`  | Change how often the tracker polls Tosu.                           |
-| `python -m OsuTracker --client-id APP_ID`  | Use this Discord application instead of `DISCORD_CLIENT_ID`.       |
-
-## Saved settings
-
-Run this once to save your Tosu endpoint, Discord application ID, update
-interval, and Discord preference locally:
-
-```bash
-osu-tracker --configure
+```text
+dist\osu-tracker.exe
 ```
 
-On Windows, the settings file is stored at
-`%APPDATA%\osu-tracker\settings.json`; it is separate from the project folder,
-so it remains available when you update or move the application. Use
-`osu-tracker --show-settings` to view it, or rerun `--configure` whenever you
-want to change it. Command-line options still override saved values for a
-single run.
+To use a specific Python command, pass it explicitly:
 
-## Features
-
-- Read the current osu! state from Tosu's local JSON API.
-- Poll continuously or fetch a single snapshot.
-- Report unavailable Tosu connections without a traceback.
+```powershell
+.\scripts\build-windows.ps1 -Python py
+```
 
 ## Documentation
 

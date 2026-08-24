@@ -4,11 +4,9 @@ The `Model` class in `OsuTracker.models` represents the JSON returned by Tosu at
 `http://127.0.0.1:24050/json`. The tracker validates a response like this:
 
 ```python
-from OsuTracker.__main__ import fetch_tosu_data
-from OsuTracker.models import Model
+from OsuTracker.tosu import fetch_tosu_data
 
-raw_data = fetch_tosu_data()
-state = Model.model_validate(raw_data)
+state = fetch_tosu_data("http://127.0.0.1:24050/json")
 ```
 
 Pydantic converts the JSON into objects. Use dot notation for normal fields.
@@ -126,15 +124,23 @@ To serialize a model back using Tosu's original key names:
 json_data = state.model_dump(by_alias=True)
 ```
 
-## Raw Data Versus Model Data
+## Model Validation
 
-Use the raw dictionary when you need an unknown or newly added Tosu field:
-
-```python
-raw_value = raw_data["gameplay"]["score"]
-model_value = state.gameplay.score
-```
-
-The Pydantic model is intentionally strict for known fields. If Tosu changes
-its response shape, validation reports the exact path that needs updating in
+`fetch_tosu_data` returns the validated `Model` directly. The Pydantic model is
+intentionally strict for known fields. If Tosu changes its response shape,
+validation reports the exact path that needs updating in
 `OsuTracker/models/tosu.py`.
+
+## Discord Text Options
+
+The desktop app's Discord **Details** and **State** dropdowns use these
+validated model values:
+
+- Gameplay summary
+- Activity state
+- Map title or artist
+- Difficulty, mods, accuracy, current PP, combo, or score
+- Player name, star rating, or BPM
+
+The selected values are saved with the other local settings and are formatted
+for Discord's 128-character activity field limit.
