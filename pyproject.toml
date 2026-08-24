@@ -10,8 +10,12 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["pydantic>=2.7,<3", "pypresence>=4.3,<5", "requests>=2.31,<3"]
 
+[project.optional-dependencies]
+build = ["pyinstaller>=6.10,<7"]
+
 [project.scripts]
-osu-tracker = "OsuTracker.__main__:main"
+osu-tracker = "OsuTracker.gui:main"
+osu-tracker-cli = "OsuTracker.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["OsuTracker*"]
