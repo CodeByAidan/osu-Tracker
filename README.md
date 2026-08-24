@@ -3,10 +3,13 @@
 #### **_Better_** _Discord Rich Presence for osu!_
 
 
-<img width="496" height="509" alt="image" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
-
-<img width="429" height="180" alt="image" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
-<img width="411" height="183" alt="image" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
+<p align="center">
+   <img width="496" height="509" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
+</p>
+<p align="center">
+   <img width="429" height="180" alt="osu!Tracker Discord Rich Presence" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
+   <img width="411" height="183" alt="osu!Tracker activity display" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
+</p>
 
 A Windows desktop app that tracks osu! in-game statistics and displays them in
 Discord Rich Presence.
