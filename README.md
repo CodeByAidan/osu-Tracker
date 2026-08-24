@@ -2,7 +2,6 @@
 
 #### **_Better_** _Discord Rich Presence for osu!_
 
-
 <p align="center">
    <img width="496" height="509" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
 </p>
