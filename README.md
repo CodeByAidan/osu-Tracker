@@ -22,14 +22,14 @@ Discord Rich Presence.
 4. Enter your Discord application ID in the app [^1], if you want Discord Rich
    Presence, then select **Save settings** and **Start tracking**.
 
+   > Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications)
+   > and copy its Client ID from **OAuth2**.
+   > <img src="images/client-id-discord-location.png" alt="Discord client ID location" width="650">
+
 > **Important:** Turn off Osu!'s in-game Discord Rich Presence before running
 > osu!Tracker to prevent conflicting activities.
 >
-> ![Osu! in-game Discord Presence](images/osu-in-game-rpc-location.png)
-
-[^1]:
-    Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications)
-    and copy its Client ID from **OAuth2**. ![client-id](images/client-id-discord-location.png)
+> <img src="images/osu-in-game-rpc-location.png" alt="Osu! in-game Discord Rich Presence setting" width="468">
 
 ## Use the app
 
