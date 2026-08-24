@@ -57,13 +57,13 @@ osu-tracker
 The tracker polls Tosu every five seconds and prints the latest game state.
 Use `python -m OsuTracker --help` for the full command reference.
 
-| Command | What it does |
-| --- | --- |
-| `python -m OsuTracker` | Run with the default Tosu endpoint and a 5-second update interval. |
-| `python -m OsuTracker --once --no-discord` | Print one Tosu snapshot without updating Discord. |
-| `python -m OsuTracker --endpoint URL` | Use a different Tosu JSON API URL. |
-| `python -m OsuTracker --interval SECONDS` | Change how often the tracker polls Tosu. |
-| `python -m OsuTracker --client-id APP_ID` | Use this Discord application instead of `DISCORD_CLIENT_ID`. |
+| Command                                    | What it does                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `python -m OsuTracker`                     | Run with the default Tosu endpoint and a 5-second update interval. |
+| `python -m OsuTracker --once --no-discord` | Print one Tosu snapshot without updating Discord.                  |
+| `python -m OsuTracker --endpoint URL`      | Use a different Tosu JSON API URL.                                 |
+| `python -m OsuTracker --interval SECONDS`  | Change how often the tracker polls Tosu.                           |
+| `python -m OsuTracker --client-id APP_ID`  | Use this Discord application instead of `DISCORD_CLIENT_ID`.       |
 
 ## Saved settings
 
@@ -80,19 +80,6 @@ so it remains available when you update or move the application. Use
 `osu-tracker --show-settings` to view it, or rerun `--configure` whenever you
 want to change it. Command-line options still override saved values for a
 single run.
-
-The Discord application ID is public and is safe to store as readable JSON.
-Do not place a Discord client secret, token, or password in this settings file.
-
-With `DISCORD_CLIENT_ID` set, the tracker also publishes the current map,
-difficulty, accuracy, and PP to Discord. While a beatmap is playing, its cover
-art is shown in the activity and links to its osu! beatmap page. Use
-`--no-discord` to run without RPC, or pass `--client-id YOUR_APPLICATION_ID`
-for a one-off override.
-
-The activity shows `Playing` while the beatmap clock advances, `Paused` when
-the clock stops during gameplay, and `Scrolling for a new song` on other Tosu
-screens.
 
 ## Features
 
