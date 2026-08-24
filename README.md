@@ -11,6 +11,7 @@ Discord Rich Presence.
 ## Requirements
 
 - Windows 10 or newer (sorry, no Linux or macOS support right now)
+- Python 3.10 or later
 - [Tosu!](https://tosu.app/) installed on your system
 
 ## Installation
