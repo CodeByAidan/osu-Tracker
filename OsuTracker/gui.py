@@ -1,8 +1,11 @@
 """Desktop interface for osu!Tracker."""
 
+import os
 import queue
+import sys
 import threading
 import tkinter as tk
+from ctypes import windll
 from pathlib import Path
 from tkinter import messagebox, ttk
 
@@ -20,12 +23,37 @@ from OsuTracker.settings import (
 from OsuTracker.tosu import fetch_tosu_data
 
 
+def _load_comfortaa(font_path: Path) -> None:
+    if os.name == "nt":
+        try:
+            windll.gdi32.AddFontResourceExW(str(font_path), 0x10, 0)
+        except (AttributeError, OSError):
+            pass
+
+
 class TrackerApp(tk.Tk):
     """A small desktop app for configuring and running the tracker."""
 
     def __init__(self, settings: Settings, settings_path: Path) -> None:
         super().__init__()
+        resource_root = Path(
+            getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent)
+        )
+        theme_path = resource_root / "assets" / "azure" / "azure.tcl"
+        self.tk.call("source", str(theme_path))
+        self.tk.call("set_theme", "dark")
+        _load_comfortaa(resource_root / "assets" / "fonts" / "Comfortaa[wght].ttf")
+        style = ttk.Style(self)
+        style.configure(".", font=("Comfortaa", 10))
+        style.configure(
+            "Map.TLabel", font=("Comfortaa", 12, "bold"), foreground="#ff66aa"
+        )
+        style.configure("Status.TLabel", foreground="#ff66aa")
         self.title("osu!Tracker")
+        try:
+            self.iconbitmap(str(resource_root / "images" / "osu-tracker.ico"))
+        except tk.TclError:
+            pass
         self.minsize(660, 560)
         self.settings_path = settings_path
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
@@ -66,16 +94,8 @@ class TrackerApp(tk.Tk):
         self.rowconfigure(0, weight=1)
         container.columnconfigure(1, weight=1)
 
-        ttk.Label(container, text="osu!Tracker", font=("Segoe UI", 18, "bold")).grid(
-            column=0, row=0, columnspan=3, sticky="w"
-        )
-        ttk.Label(
-            container,
-            text="Live beatmap stats and Discord Rich Presence",
-        ).grid(column=0, row=1, columnspan=3, sticky="w", pady=(0, 12))
-
         settings_frame = ttk.LabelFrame(container, text="Settings", padding=12)
-        settings_frame.grid(column=0, row=2, columnspan=3, sticky="ew")
+        settings_frame.grid(column=0, row=0, columnspan=3, sticky="ew")
         settings_frame.columnconfigure(1, weight=1)
         self._setting_row(settings_frame, 0, "Tosu API endpoint", self.endpoint)
         self._setting_row(settings_frame, 1, "Discord application ID", self.client_id)
@@ -91,7 +111,7 @@ class TrackerApp(tk.Tk):
         ).grid(column=0, row=5, columnspan=2, sticky="w", pady=(8, 0))
 
         buttons = ttk.Frame(container)
-        buttons.grid(column=0, row=3, columnspan=3, sticky="ew", pady=12)
+        buttons.grid(column=0, row=1, columnspan=3, sticky="ew", pady=12)
         ttk.Button(buttons, text="Save settings", command=self._save).pack(side="left")
         self.start_button = ttk.Button(
             buttons, text="Start tracking", command=self._start
@@ -102,17 +122,17 @@ class TrackerApp(tk.Tk):
         )
         self.stop_button.pack(side="left", padx=(8, 0))
 
-        ttk.Label(container, textvariable=self.status, foreground="#267a36").grid(
-            column=0, row=4, columnspan=3, sticky="w", pady=(0, 12)
+        ttk.Label(container, textvariable=self.status, style="Status.TLabel").grid(
+            column=0, row=2, columnspan=3, sticky="w", pady=(0, 12)
         )
 
         activity = ttk.LabelFrame(container, text="Current activity", padding=12)
-        activity.grid(column=0, row=5, columnspan=3, sticky="nsew")
+        activity.grid(column=0, row=3, columnspan=3, sticky="nsew")
         activity.columnconfigure(1, weight=1)
         ttk.Label(
             activity,
             textvariable=self.map_text,
-            font=("Segoe UI", 12, "bold"),
+            style="Map.TLabel",
             wraplength=570,
         ).grid(column=0, row=0, columnspan=2, sticky="w", pady=(0, 8))
         for row, (label, variable) in enumerate(self.details.items(), start=1):
