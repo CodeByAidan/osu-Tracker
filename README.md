@@ -50,6 +50,12 @@ start (or after a restart).
 
 ## Command line (optional)
 
+Make sure to install in a virtual environment the package in editable mode first!
+
+```powershell
+pip install -e .
+```
+
 The normal command opens the desktop app. For automation and troubleshooting,
 the previous command-line interface remains available:
 
