@@ -57,7 +57,7 @@ pip install -e .
 ```
 
 The normal command opens the desktop app. For automation and troubleshooting,
-the previous command-line interface remains available:
+the command-line interface is available:
 
 ```powershell
 osu-tracker-cli --once --no-discord
