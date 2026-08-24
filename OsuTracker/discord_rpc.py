@@ -5,6 +5,7 @@ from typing import Optional
 from pypresence.presence import Presence
 
 from OsuTracker.models.tosu import Model
+from OsuTracker.settings import DEFAULT_DISCORD_DETAILS, DEFAULT_DISCORD_STATE
 
 OSU_BEATMAP_COVER_URL = "https://assets.ppy.sh/beatmaps/{set_id}/covers/cover.jpg"
 OSU_BEATMAP_URL = "https://osu.ppy.sh/beatmapsets/{set_id}"
@@ -24,8 +25,15 @@ warnings.filterwarnings(
 class DiscordRPC:
     """Publish the current Tosu state as a Discord Rich Presence activity."""
 
-    def __init__(self, client_id: Optional[str]) -> None:
+    def __init__(
+        self,
+        client_id: Optional[str],
+        details_field: str = DEFAULT_DISCORD_DETAILS,
+        state_field: str = DEFAULT_DISCORD_STATE,
+    ) -> None:
         self.client_id = client_id
+        self.details_field = details_field
+        self.state_field = state_field
         self._presence: Optional[Presence] = None
         self._last_song_time: Optional[int] = None
         self._last_song_time_seen_at: Optional[float] = None
@@ -59,12 +67,12 @@ class DiscordRPC:
         metadata = model.menu.bm.metadata
         activity_state = self._activity_state(model)
         if model.menu.state == 2:
-            details = self._gameplay_details(model, activity_state)
-            state = f"{metadata.artist} - {metadata.title}"
+            details = self._text_value(model, self.details_field, activity_state)
+            state = self._text_value(model, self.state_field, activity_state)
             large_image, large_text, large_url = self._beatmap_art(model)
         else:
-            details = activity_state
-            state = f"{metadata.artist} - {metadata.title}"
+            details = self._text_value(model, self.details_field, activity_state)
+            state = self._text_value(model, self.state_field, activity_state)
             large_image, large_text, large_url = OSU_LOGO_URL, "osu!", None
 
         try:
@@ -99,27 +107,36 @@ class DiscordRPC:
         )
 
     @staticmethod
-    def _gameplay_details(model: Model, activity_state: str) -> str:
-        """Build the compact live-stat line shown during a map."""
-        hits = model.gameplay.hits
-        total_time = model.menu.bm.time.full
-        if total_time > 0:
-            progress = min(
-                100, max(0, round(model.menu.bm.time.current / total_time * 100))
+    def _text_value(model: Model, field: str, activity_state: str) -> str:
+        """Format a selected Tosu value for a Discord activity field."""
+        metadata = model.menu.bm.metadata
+        if field == "gameplay":
+            total_time = model.menu.bm.time.full
+            progress = (
+                "--%"
+                if total_time <= 0
+                else f"{min(100, max(0, round(model.menu.bm.time.current / total_time * 100)))}%"
             )
-            progress_text = f"{progress}%"
-        else:
-            progress_text = "--%"
-
-        return (
-            f"{activity_state} | {model.menu.bm.stats.fullSR:.2f}★ "
-            f"[{model.menu.bm.metadata.difficulty}] | "
-            f"{model.menu.mods.str or 'NoMod'} | "
-            f"{model.gameplay.accuracy:.2f}% | "
-            f"PP {model.gameplay.pp.current:.0f}/{model.gameplay.pp.maxThisPlay:.0f} | "
-            f"300x {hits.field_300} | 100x {hits.field_100} | "
-            f"Max {model.gameplay.combo.max}x | {progress_text}"
-        )
+            return (
+                f"{activity_state} | {model.menu.bm.stats.fullSR:.2f}★ | "
+                f"{model.menu.mods.str or 'NoMod'} | {model.gameplay.accuracy:.2f}% | "
+                f"PP {model.gameplay.pp.current:.0f} | Max {model.gameplay.combo.max}x | {progress}"
+            )
+        values = {
+            "activity": activity_state,
+            "map": f"{metadata.artist} - {metadata.title}",
+            "artist": metadata.artist,
+            "difficulty": metadata.difficulty,
+            "mods": model.menu.mods.str or "NoMod",
+            "accuracy": f"{model.gameplay.accuracy:.2f}%",
+            "pp": f"{model.gameplay.pp.current:.0f} PP",
+            "combo": f"{model.gameplay.combo.current}x combo",
+            "score": f"{model.gameplay.score:,}",
+            "player": model.gameplay.name,
+            "stars": f"{model.menu.bm.stats.fullSR:.2f}★",
+            "bpm": f"{model.menu.bm.stats.BPM.realtime:g} BPM",
+        }
+        return values.get(field, activity_state)
 
     def _activity_state(self, model: Model) -> str:
         """Classify Tosu's current screen for the Discord activity."""

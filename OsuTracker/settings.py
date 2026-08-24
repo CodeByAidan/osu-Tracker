@@ -1,15 +1,30 @@
 """Local configuration for osu!Tracker."""
 
-from __future__ import annotations
-
-from dataclasses import asdict, dataclass
 import json
 import os
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
 DEFAULT_ENDPOINT = "http://127.0.0.1:24050/json"
 DEFAULT_INTERVAL = 5.0
+DEFAULT_DISCORD_DETAILS = "gameplay"
+DEFAULT_DISCORD_STATE = "map"
+DISCORD_TEXT_OPTIONS = {
+    "Gameplay summary": "gameplay",
+    "Activity state": "activity",
+    "Map title": "map",
+    "Artist": "artist",
+    "Difficulty": "difficulty",
+    "Mods": "mods",
+    "Accuracy": "accuracy",
+    "Current PP": "pp",
+    "Current combo": "combo",
+    "Score": "score",
+    "Player name": "player",
+    "Star rating": "stars",
+    "BPM": "bpm",
+}
 
 
 @dataclass
@@ -19,7 +34,8 @@ class Settings:
     endpoint: str = DEFAULT_ENDPOINT
     client_id: str | None = None
     interval: float = DEFAULT_INTERVAL
-    discord_enabled: bool = True
+    discord_details: str = DEFAULT_DISCORD_DETAILS
+    discord_state: str = DEFAULT_DISCORD_STATE
 
 
 def default_settings_path() -> Path:
@@ -51,7 +67,12 @@ def load_settings(path: Path) -> Settings:
         endpoint=_string_setting(data, "endpoint", DEFAULT_ENDPOINT),
         client_id=_optional_string_setting(data, "client_id"),
         interval=_interval_setting(data),
-        discord_enabled=_bool_setting(data, "discord_enabled", True),
+        discord_details=_discord_text_setting(
+            data, "discord_details", DEFAULT_DISCORD_DETAILS
+        ),
+        discord_state=_discord_text_setting(
+            data, "discord_state", DEFAULT_DISCORD_STATE
+        ),
     )
 
 
@@ -71,15 +92,16 @@ def configure_settings(current: Settings, path: Path) -> Settings:
         "Discord application ID (leave blank to disable)", current.client_id
     )
     interval = _prompt_interval(current.interval)
-    discord_enabled = bool(client_id) and _prompt_yes_no(
-        "Enable Discord Rich Presence", current.discord_enabled
-    )
-
     settings = Settings(
         endpoint=endpoint,
         client_id=client_id or None,
         interval=interval,
-        discord_enabled=discord_enabled,
+        discord_details=_prompt_choice(
+            "Discord Details", current.discord_details, DISCORD_TEXT_OPTIONS
+        ),
+        discord_state=_prompt_choice(
+            "Discord State", current.discord_state, DISCORD_TEXT_OPTIONS
+        ),
     )
     save_settings(settings, path)
     print("Settings saved.")
@@ -107,9 +129,9 @@ def _interval_setting(data: dict[str, Any]) -> float:
     return interval if interval > 0 else DEFAULT_INTERVAL
 
 
-def _bool_setting(data: dict[str, Any], key: str, default: bool) -> bool:
-    value = data.get(key, default)
-    return value if isinstance(value, bool) else default
+def _discord_text_setting(data: dict[str, Any], key: str, default: str) -> str:
+    value = data.get(key)
+    return value if value in DISCORD_TEXT_OPTIONS.values() else default
 
 
 def _prompt(label: str, default: str) -> str:
@@ -135,14 +157,20 @@ def _prompt_interval(default: float) -> float:
         print("Enter a number greater than zero.")
 
 
-def _prompt_yes_no(label: str, default: bool) -> bool:
-    default_text = "Y/n" if default else "y/N"
+def _prompt_choice(label: str, default: str, options: dict[str, str]) -> str:
+    choices = list(options.items())
+    print(f"{label}:")
+    for index, (name, value) in enumerate(choices, start=1):
+        marker = " (current)" if value == default else ""
+        print(f"  {index}. {name}{marker}")
     while True:
-        value = input(f"{label} [{default_text}]: ").strip().lower()
+        value = input("Choose an option [current]: ").strip()
         if not value:
             return default
-        if value in {"y", "yes"}:
-            return True
-        if value in {"n", "no"}:
-            return False
-        print("Enter y or n.")
+        try:
+            index = int(value) - 1
+        except ValueError:
+            index = -1
+        if 0 <= index < len(choices):
+            return choices[index][1]
+        print("Choose one of the listed options.")
