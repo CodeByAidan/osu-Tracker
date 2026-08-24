@@ -65,6 +65,25 @@ Use `python -m OsuTracker --help` for the full command reference.
 | `python -m OsuTracker --interval SECONDS` | Change how often the tracker polls Tosu. |
 | `python -m OsuTracker --client-id APP_ID` | Use this Discord application instead of `DISCORD_CLIENT_ID`. |
 
+## Saved settings
+
+Run this once to save your Tosu endpoint, Discord application ID, update
+interval, and Discord preference locally:
+
+```bash
+osu-tracker --configure
+```
+
+On Windows, the settings file is stored at
+`%APPDATA%\osu-tracker\settings.json`; it is separate from the project folder,
+so it remains available when you update or move the application. Use
+`osu-tracker --show-settings` to view it, or rerun `--configure` whenever you
+want to change it. Command-line options still override saved values for a
+single run.
+
+The Discord application ID is public and is safe to store as readable JSON.
+Do not place a Discord client secret, token, or password in this settings file.
+
 With `DISCORD_CLIENT_ID` set, the tracker also publishes the current map,
 difficulty, accuracy, and PP to Discord. While a beatmap is playing, its cover
 art is shown in the activity and links to its osu! beatmap page. Use

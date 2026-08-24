@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 import os
+from pathlib import Path
 import time
 from textwrap import dedent
 from typing import Any
@@ -13,9 +15,15 @@ import requests
 
 from OsuTracker.models.tosu import Model
 from OsuTracker.discord_rpc import DiscordRPC
+from OsuTracker.settings import (
+    DEFAULT_ENDPOINT,
+    DEFAULT_INTERVAL,
+    configure_settings,
+    default_settings_path,
+    load_settings,
+)
 
-TOSU_ENDPOINT = "http://127.0.0.1:24050/json"
-DEFAULT_INTERVAL = 5.0
+TOSU_ENDPOINT = DEFAULT_ENDPOINT
 
 
 def fetch_tosu_data(
@@ -86,16 +94,14 @@ def parse_args() -> argparse.Namespace:
     tosu_options.add_argument(
         "--endpoint",
         metavar="URL",
-        default=TOSU_ENDPOINT,
-        help=f"Tosu JSON API URL (default: {TOSU_ENDPOINT}).",
+        help=f"Tosu JSON API URL (saved setting; default: {TOSU_ENDPOINT}).",
     )
 
     discord_options = parser.add_argument_group("Discord Rich Presence")
     discord_options.add_argument(
         "--client-id",
         metavar="APP_ID",
-        default=os.getenv("DISCORD_CLIENT_ID"),
-        help="Discord application ID; defaults to DISCORD_CLIENT_ID when set.",
+        help="Discord application ID for this run only.",
     )
     discord_options.add_argument(
         "--no-discord",
@@ -108,13 +114,28 @@ def parse_args() -> argparse.Namespace:
         "--interval",
         metavar="SECONDS",
         type=float,
-        default=DEFAULT_INTERVAL,
-        help=f"Seconds between updates (default: {DEFAULT_INTERVAL:g}).",
+        help=f"Seconds between updates for this run (saved default: {DEFAULT_INTERVAL:g}).",
     )
     run_options.add_argument(
         "--once",
         action="store_true",
         help="Fetch one Tosu snapshot, print it, then exit.",
+    )
+    settings_options = parser.add_argument_group("Saved settings")
+    settings_options.add_argument(
+        "--configure",
+        action="store_true",
+        help="Interactively save the Tosu endpoint, Discord app ID, and interval.",
+    )
+    settings_options.add_argument(
+        "--settings-file",
+        metavar="PATH",
+        help="Use a different JSON settings file for this run.",
+    )
+    settings_options.add_argument(
+        "--show-settings",
+        action="store_true",
+        help="Print the active settings and their file path, then exit.",
     )
     return parser.parse_args()
 
@@ -159,12 +180,31 @@ def run(
 
 def main() -> int:
     arguments = parse_args()
+    settings_path = (
+        Path(arguments.settings_file).expanduser()
+        if arguments.settings_file
+        else default_settings_path()
+    )
+    settings = load_settings(settings_path)
+
+    if arguments.configure:
+        configure_settings(settings, settings_path)
+        return 0
+
+    if arguments.show_settings:
+        print(f"Settings file: {settings_path}")
+        print(json.dumps(asdict(settings), indent=2))
+        return 0
+
+    client_id = arguments.client_id
+    if client_id is None:
+        client_id = settings.client_id or os.getenv("DISCORD_CLIENT_ID")
     return run(
-        arguments.endpoint,
-        arguments.interval,
+        arguments.endpoint or settings.endpoint,
+        arguments.interval if arguments.interval is not None else settings.interval,
         arguments.once,
-        arguments.client_id,
-        arguments.no_discord,
+        client_id,
+        arguments.no_discord or not settings.discord_enabled,
     )
 
 
