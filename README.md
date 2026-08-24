@@ -1,17 +1,19 @@
 # osu!Tracker
 
-#### **_Better_** _Discord Rich Presence for osu!_
+<h3 align="center"><b><i>Better</i></b> <i>Discord Rich Presence for osu!</i></h3>
 
 <p align="center">
-   <img width="496" height="509" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
+   <img width="463" height="470" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
 </p>
 <p align="center">
-   <img width="429" height="180" alt="osu!Tracker Discord Rich Presence" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
-   <img width="411" height="183" alt="osu!Tracker activity display" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
+   <img width="322" height="135" alt="osu!Tracker Discord Rich Presence" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
+   <img width="308" height="139" alt="osu!Tracker activity display" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
 </p>
 
+<p align="center">
 A Windows desktop app that tracks osu! in-game statistics and displays them in
 Discord Rich Presence.
+</p>
 
 ## Requirements
 
@@ -48,8 +50,14 @@ start (or after a restart).
 
 ## Command line (optional)
 
+Make sure to install in a virtual environment the package in editable mode first!
+
+```powershell
+pip install -e .
+```
+
 The normal command opens the desktop app. For automation and troubleshooting,
-the previous command-line interface remains available:
+the command-line interface is available:
 
 ```powershell
 osu-tracker-cli --once --no-discord

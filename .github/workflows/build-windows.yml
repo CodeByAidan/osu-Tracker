@@ -21,13 +21,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Build osu!Tracker
         run: .\scripts\build-windows.ps1 -Python python
 
       - name: Upload Windows executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: osu-tracker-windows
           path: dist/osu-tracker.exe
