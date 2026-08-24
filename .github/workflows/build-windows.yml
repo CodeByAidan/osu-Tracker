@@ -1,0 +1,34 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Windows executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Build osu!Tracker
+        run: .\scripts\build-windows.ps1 -Python python
+
+      - name: Upload Windows executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: osu-tracker-windows
+          path: dist/osu-tracker.exe
+          if-no-files-found: error
