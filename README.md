@@ -19,7 +19,7 @@ Discord Rich Presence.
 2. Start Tosu! and confirm its local API is available (normally
    `http://127.0.0.1:24050/json`).
 3. Open `osu-tracker.exe`.
-4. Enter your Discord application ID in the app [^1], if you want Discord Rich
+4. Enter your Discord application ID in the app, if you want Discord Rich
    Presence, then select **Save settings** and **Start tracking**.
 
    > Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications)
