@@ -2,9 +2,10 @@
 
 import json
 import os
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
 DEFAULT_ENDPOINT = "http://127.0.0.1:24050/json"
 DEFAULT_INTERVAL = 5.0
@@ -38,6 +39,14 @@ class Settings:
     discord_state: str = DEFAULT_DISCORD_STATE
 
 
+class SettingsDTO(TypedDict, total=False):
+    endpoint: object
+    client_id: object
+    interval: object
+    discord_details: object
+    discord_state: object
+
+
 def default_settings_path() -> Path:
     """Return the per-user settings path without depending on the current folder."""
     if app_data := os.getenv("APPDATA"):
@@ -54,12 +63,13 @@ def load_settings(path: Path) -> Settings:
 
     try:
         with path.open(encoding="utf-8") as file:
-            data = json.load(file)
+            raw_data = json.load(file)
     except (OSError, json.JSONDecodeError) as error:
         print(f"Unable to read settings at {path}: {error}. Using defaults.")
         return Settings()
 
-    if not isinstance(data, dict):
+    data = _to_settings_dto(raw_data)
+    if data is None:
         print(f"Settings at {path} must be a JSON object. Using defaults.")
         return Settings()
 
@@ -74,6 +84,23 @@ def load_settings(path: Path) -> Settings:
             data, "discord_state", DEFAULT_DISCORD_STATE
         ),
     )
+
+
+def _to_settings_dto(raw_data: object) -> SettingsDTO | None:
+    if not isinstance(raw_data, Mapping):
+        return None
+
+    data: SettingsDTO = {}
+    for key in (
+        "endpoint",
+        "client_id",
+        "interval",
+        "discord_details",
+        "discord_state",
+    ):
+        if key in raw_data:
+            data[key] = raw_data[key]
+    return data
 
 
 def save_settings(settings: Settings, path: Path) -> None:
@@ -108,19 +135,21 @@ def configure_settings(current: Settings, path: Path) -> Settings:
     return settings
 
 
-def _string_setting(data: dict[str, Any], key: str, default: str) -> str:
+def _string_setting(data: SettingsDTO, key: str, default: str) -> str:
     value = data.get(key, default)
     return value.strip() if isinstance(value, str) and value.strip() else default
 
 
-def _optional_string_setting(data: dict[str, Any], key: str) -> str | None:
+def _optional_string_setting(data: SettingsDTO, key: str) -> str | None:
     value = data.get(key)
     return value.strip() if isinstance(value, str) and value.strip() else None
 
 
-def _interval_setting(data: dict[str, Any]) -> float:
+def _interval_setting(data: SettingsDTO) -> float:
     value = data.get("interval", DEFAULT_INTERVAL)
     if isinstance(value, bool):
+        return DEFAULT_INTERVAL
+    if not isinstance(value, (int, float, str)):
         return DEFAULT_INTERVAL
     try:
         interval = float(value)
@@ -129,9 +158,11 @@ def _interval_setting(data: dict[str, Any]) -> float:
     return interval if interval > 0 else DEFAULT_INTERVAL
 
 
-def _discord_text_setting(data: dict[str, Any], key: str, default: str) -> str:
+def _discord_text_setting(data: SettingsDTO, key: str, default: str) -> str:
     value = data.get(key)
-    return value if value in DISCORD_TEXT_OPTIONS.values() else default
+    if isinstance(value, str) and value in DISCORD_TEXT_OPTIONS.values():
+        return value
+    return default
 
 
 def _prompt(label: str, default: str) -> str:
