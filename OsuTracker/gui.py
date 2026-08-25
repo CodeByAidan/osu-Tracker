@@ -16,10 +16,15 @@ from OsuTracker.gui_components.settings_form import SettingsForm
 from OsuTracker.gui_components.tracker_controls import TrackerControls
 from OsuTracker.gui_components.update_panel import UpdatePanel
 from OsuTracker.models.tosu import Model
-from OsuTracker.settings import (DEFAULT_DISCORD_DETAILS,
-                                 DEFAULT_DISCORD_STATE, DISCORD_TEXT_OPTIONS,
-                                 Settings, default_settings_path,
-                                 load_settings, save_settings)
+from OsuTracker.settings import (
+    DEFAULT_DISCORD_DETAILS,
+    DEFAULT_DISCORD_STATE,
+    DISCORD_TEXT_OPTIONS,
+    Settings,
+    default_settings_path,
+    load_settings,
+    save_settings,
+)
 from OsuTracker.services.tracker_service import track
 from OsuTracker.services.update_service import check_for_update, download_update
 from OsuTracker.updater import RELEASES_PAGE, current_version
@@ -27,7 +32,7 @@ from OsuTracker.updater import RELEASES_PAGE, current_version
 LINK_BUTTON_STYLE = "Link.TButton"
 
 
-def _load_comfortaa(font_path: Path) -> None:
+def _load_font(font_path: Path) -> None:
     if os.name == "nt":
         try:
             windll.gdi32.AddFontResourceExW(str(font_path), 0x10, 0)
@@ -44,7 +49,7 @@ class TrackerApp(tk.Tk):
         theme_path = resource_root / "assets" / "azure" / "azure.tcl"
         self.tk.call("source", str(theme_path))
         self.tk.call("set_theme", "dark")
-        _load_comfortaa(resource_root / "assets" / "fonts" / "Comfortaa[wght].ttf")
+        _load_font(resource_root / "assets" / "fonts" / "Comfortaa[wght].ttf")
         style = ttk.Style(self)
         style.configure(".", font=("Comfortaa", 10))
         style.configure(
@@ -103,7 +108,9 @@ class TrackerApp(tk.Tk):
         self.rowconfigure(0, weight=1)
         container.columnconfigure(1, weight=1)
 
-        self.settings_form = SettingsForm(container, self._initial_settings, self.settings_path)
+        self.settings_form = SettingsForm(
+            container, self._initial_settings, self.settings_path
+        )
         self.settings_form.grid(column=0, row=0, columnspan=3, sticky="ew")
 
         self.controls = TrackerControls(
