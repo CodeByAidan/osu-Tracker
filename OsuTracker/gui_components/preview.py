@@ -1,9 +1,9 @@
 """Widgets and presentation logic for the Discord Rich Presence preview."""
 
-from io import BytesIO
-from typing import Callable
 import tkinter as tk
+from io import BytesIO
 from tkinter import ttk
+from typing import Callable
 
 import requests
 
@@ -43,7 +43,9 @@ class RichPresencePreview(ttk.LabelFrame):
         self._image_label: tk.Label | None = None
         self._fallback_icon = tk.StringVar(self, value="♪")
         self._details = tk.StringVar(self, value="Waiting for Tosu data")
-        self._state = tk.StringVar(self, value="Start tracking to preview Rich Presence")
+        self._state = tk.StringVar(
+            self, value="Start tracking to preview Rich Presence"
+        )
         self._activity = tk.StringVar(self, value="Not connected")
         self._elapsed = tk.StringVar(self, value="00:00 elapsed")
         self._large_text = tk.StringVar(self, value="osu!")
@@ -90,10 +92,28 @@ class RichPresencePreview(ttk.LabelFrame):
         preview_text = tk.Frame(card, bg=PREVIEW_CARD_BG)
         preview_text.grid(column=1, row=1, sticky="new", padx=(12, 0))
         preview_text.columnconfigure(0, weight=1)
-        self._label(preview_text, "osu!Tracker", 0, "#FFFFFF", ("Comfortaa", 11, "bold"))
-        self._label(preview_text, self._details, 1, "#FFFFFF", ("Comfortaa", 9), pady=(5, 0))
-        self._label(preview_text, self._state, 2, PREVIEW_SUBTLE_TEXT, ("Comfortaa", 9), pady=(2, 0))
-        self._label(preview_text, self._elapsed, 3, PREVIEW_ELAPSED_TEXT, ("Comfortaa", 9), pady=(4, 0))
+        self._label(
+            preview_text, "osu!Tracker", 0, "#FFFFFF", ("Comfortaa", 11, "bold")
+        )
+        self._label(
+            preview_text, self._details, 1, "#FFFFFF", ("Comfortaa", 9), pady=(5, 0)
+        )
+        self._label(
+            preview_text,
+            self._state,
+            2,
+            PREVIEW_SUBTLE_TEXT,
+            ("Comfortaa", 9),
+            pady=(2, 0),
+        )
+        self._label(
+            preview_text,
+            self._elapsed,
+            3,
+            PREVIEW_ELAPSED_TEXT,
+            ("Comfortaa", 9),
+            pady=(4, 0),
+        )
         tk.Label(
             self,
             textvariable=self._status,
@@ -131,7 +151,9 @@ class RichPresencePreview(ttk.LabelFrame):
         """Render a Tosu model using the selected Discord text fields."""
         activity_state = self._activity_state_tracker.activity_state(model)
         self._activity.set(activity_state)
-        self._details.set(DiscordRPC.text_value(model, details_field, activity_state)[:128])
+        self._details.set(
+            DiscordRPC.text_value(model, details_field, activity_state)[:128]
+        )
         self._state.set(DiscordRPC.text_value(model, state_field, activity_state)[:128])
 
         if model.menu.state == 2:

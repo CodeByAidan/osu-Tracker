@@ -1,7 +1,7 @@
 """Tracker action controls for the desktop application."""
 
-from collections.abc import Callable
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import ttk
 
 

@@ -1,7 +1,7 @@
 """Update controls and progress display for the desktop tracker."""
 
-from collections.abc import Callable
 import tkinter as tk
+from collections.abc import Callable
 from tkinter import ttk
 
 from OsuTracker.updater import is_update_available

@@ -1,7 +1,7 @@
 """Settings form widget for the desktop tracker."""
 
-from pathlib import Path
 import tkinter as tk
+from pathlib import Path
 from tkinter import messagebox, ttk
 
 from OsuTracker.settings import DISCORD_TEXT_OPTIONS, Settings
@@ -10,13 +10,19 @@ from OsuTracker.settings import DISCORD_TEXT_OPTIONS, Settings
 class SettingsForm(ttk.LabelFrame):
     """Edit and validate the settings used by the tracker."""
 
-    def __init__(self, parent: tk.Misc, settings: Settings, settings_path: Path) -> None:
+    def __init__(
+        self, parent: tk.Misc, settings: Settings, settings_path: Path
+    ) -> None:
         super().__init__(parent, text="Settings", padding=12)
         self._endpoint = tk.StringVar(self, value=settings.endpoint)
         self._client_id = tk.StringVar(self, value=settings.client_id or "")
         self._interval = tk.StringVar(self, value=f"{settings.interval:g}")
-        self._details = tk.StringVar(self, value=self._option_name(settings.discord_details))
-        self._state = tk.StringVar(self, value=self._option_name(settings.discord_state))
+        self._details = tk.StringVar(
+            self, value=self._option_name(settings.discord_details)
+        )
+        self._state = tk.StringVar(
+            self, value=self._option_name(settings.discord_state)
+        )
         self._build(settings_path)
 
     @property
