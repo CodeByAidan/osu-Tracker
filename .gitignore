@@ -228,3 +228,5 @@ images/osu-tracker-wordmark-light.png
 images/osu-tracker-wordmark-light.svg
 images/osu-tracker-wordmark-v2.svg
 images/osu-tracker-wordmark-v2.png
+scripts/dev_tosu_probe.py
+dev-captures/
