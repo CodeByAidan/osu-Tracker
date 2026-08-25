@@ -1,2 +1,4 @@
-pypresence>=4.3,<5
-requests>=2.31,<3
+pypresence>=4.6.2
+requests>=2.34.2
+rich>=15.0.0
+pillow>=12.3.0

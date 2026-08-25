@@ -8,7 +8,13 @@ version = "0.1.0"
 description = "Track osu! game statistics from Tosu."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["pydantic>=2.7,<3", "pypresence>=4.3,<5", "requests>=2.31,<3"]
+dependencies = [
+    "pydantic>=2.13.4",
+    "pypresence>=4.6.2",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+    "pillow>=12.3.0",
+]
 
 [project.optional-dependencies]
 build = ["pyinstaller>=6.10,<7"]
