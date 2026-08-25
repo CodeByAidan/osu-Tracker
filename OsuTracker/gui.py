@@ -275,6 +275,8 @@ class TrackerApp(tk.Tk):
         footer.grid(column=0, row=4, columnspan=3, sticky="ew", pady=(10, 0))
         footer.columnconfigure(0, weight=1)
 
+        self.update_progress = ttk.Progressbar(footer, mode="determinate", length=120)
+        self.update_progress.grid(column=1, row=0, sticky="e", padx=(10, 0))
         ttk.Label(footer, textvariable=self.update_status, style="Footer.TLabel").grid(
             column=0, row=0, sticky="w"
         )
@@ -285,14 +287,14 @@ class TrackerApp(tk.Tk):
             style=LINK_BUTTON_STYLE,
             cursor="hand2",
         )
-        self.github_link_button.grid(column=1, row=0, sticky="e")
+        self.github_link_button.grid(column=2, row=0, sticky="e")
         self.check_update_button = ttk.Button(
             footer,
             text="Check for updates",
             command=self._check_for_update,
             style=LINK_BUTTON_STYLE,
         )
-        self.check_update_button.grid(column=2, row=0, sticky="e", padx=(10, 0))
+        self.check_update_button.grid(column=3, row=0, sticky="e", padx=(10, 0))
         self.update_button = ttk.Button(
             footer,
             text="Update now",
@@ -300,7 +302,7 @@ class TrackerApp(tk.Tk):
             state="disabled",
             style=LINK_BUTTON_STYLE,
         )
-        self.update_button.grid(column=3, row=0, sticky="e", padx=(10, 0))
+        self.update_button.grid(column=4, row=0, sticky="e", padx=(10, 0))
 
     @staticmethod
     def _discord_option_name(value: str) -> str:
@@ -459,6 +461,8 @@ class TrackerApp(tk.Tk):
 
         self.check_update_button.configure(state="disabled")
         self.update_button.configure(state="disabled")
+        self.update_progress.stop()
+        self.update_progress.configure(mode="determinate", value=0)
         self.status.set(f"Downloading v{self.latest_release_version}…")
         thread = threading.Thread(target=self._start_update_worker, daemon=True)
         thread.start()
@@ -468,14 +472,19 @@ class TrackerApp(tk.Tk):
             self.events.put(("update-error", ("No release download URL found.", True)))
             return
         try:
-            begin_windows_self_update(self.latest_release_url)
+            log_path = begin_windows_self_update(
+                self.latest_release_url,
+                progress_callback=lambda downloaded, total: self.events.put(
+                    ("update-progress", (downloaded, total))
+                ),
+            )
         except requests.RequestException as error:
             self.events.put(("update-error", (f"Download failed: {error}", True)))
             return
         except OSError as error:
             self.events.put(("update-error", (f"Update failed: {error}", True)))
             return
-        self.events.put(("update-started", None))
+        self.events.put(("update-started", log_path))
 
     def _stop(self) -> None:
         self.stop_event.set()
@@ -537,12 +546,36 @@ class TrackerApp(tk.Tk):
         if event == "update-info":
             self._handle_update_info(value)
             return
+        if event == "update-progress":
+            self._handle_update_progress(value)
+            return
         if event == "update-started":
+            self.update_progress.stop()
+            self.update_progress.configure(value=100)
             messagebox.showinfo(
                 "Updating",
-                "Update downloaded. The app will now restart.",
+                f"Update downloaded. The app will now restart.\n\n"
+                f"Update log:\n{value}",
             )
             self._close()
+
+    def _handle_update_progress(self, value: object) -> None:
+        if not isinstance(value, tuple) or len(value) != 2:
+            return
+        downloaded, total = value
+        if not isinstance(downloaded, int):
+            return
+        if isinstance(total, int) and total > 0:
+            self.update_progress.stop()
+            self.update_progress.configure(
+                mode="determinate", maximum=total, value=downloaded
+            )
+            percent = downloaded * 100 // total
+            self.status.set(f"Downloading update… {percent}%")
+            return
+        self.update_progress.configure(mode="indeterminate")
+        self.update_progress.start(10)
+        self.status.set(f"Downloading update… {downloaded // 1024} KB")
 
     def _handle_update_error(self, value: object) -> None:
         if not isinstance(value, tuple) or len(value) != 2:

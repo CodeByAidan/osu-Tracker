@@ -8,7 +8,7 @@ import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import requests
 
@@ -20,6 +20,8 @@ LATEST_RELEASE_API = (
     f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
 )
 RELEASES_PAGE = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/releases"
+UPDATE_DIRECTORY_NAME = "osu-tracker-updater"
+ProgressCallback = Callable[[int, int | None], None]
 
 
 @dataclass(frozen=True)
@@ -111,28 +113,42 @@ def fetch_latest_release(timeout: float = 6.0) -> ReleaseInfo:
     )
 
 
-def _download_file(url: str, destination: Path, timeout: float = 30.0) -> None:
+def _download_file(
+    url: str,
+    destination: Path,
+    timeout: float = 30.0,
+    progress_callback: ProgressCallback | None = None,
+) -> None:
     with requests.get(url, stream=True, timeout=timeout) as response:
         response.raise_for_status()
+        total = int(response.headers.get("Content-Length", 0)) or None
+        downloaded = 0
         with destination.open("wb") as file:
             for chunk in response.iter_content(chunk_size=1024 * 128):
                 if chunk:
                     file.write(chunk)
+                    downloaded += len(chunk)
+                    if progress_callback:
+                        progress_callback(downloaded, total)
 
 
-def begin_windows_self_update(download_url: str) -> None:
+def begin_windows_self_update(
+    download_url: str,
+    progress_callback: ProgressCallback | None = None,
+) -> Path:
     """Download a new exe and launch a helper script to replace this process."""
     if not getattr(sys, "frozen", False):
         raise RuntimeError("Self-update is only supported in the packaged .exe.")
 
     current_exe = Path(sys.executable).resolve()
-    update_dir = Path(tempfile.gettempdir()) / "osu-tracker-updater"
+    update_dir = Path(tempfile.gettempdir()) / UPDATE_DIRECTORY_NAME
     update_dir.mkdir(parents=True, exist_ok=True)
 
     next_exe = update_dir / "osu-tracker-next.exe"
     script_path = update_dir / "apply-update.ps1"
 
-    _download_file(download_url, next_exe)
+    _download_file(download_url, next_exe, progress_callback=progress_callback)
+    log_path = update_dir / "update.log"
 
     script_path.write_text(
         """param(
@@ -142,9 +158,15 @@ def begin_windows_self_update(download_url: str) -> None:
 )
 
 $ErrorActionPreference = "Stop"
+$LogPath = "{log_path}"
+
+function Write-UpdateLog([string]$Message) {{
+    "$(Get-Date -Format o) $Message" | Add-Content -Path $LogPath
+}}
 
 try {
-    Wait-Process -Id $PidToWait -Timeout 90 -ErrorAction SilentlyContinue
+    Write-UpdateLog "Waiting for process $PidToWait to exit."
+    Wait-Process -Id $PidToWait -Timeout 30 -ErrorAction SilentlyContinue
 } catch {}
 
 $replaced = $false
@@ -154,20 +176,25 @@ while (-not $replaced -and (Get-Date) -lt $deadline) {
     try {
         Move-Item -Path $NewExe -Destination $TargetExe -Force
         $replaced = $true
+        Write-UpdateLog "Replaced $TargetExe."
     } catch {
         Start-Sleep -Milliseconds 300
     }
 }
 
 if ($replaced) {
+    Write-UpdateLog "Starting $TargetExe."
     Start-Process -FilePath $TargetExe
     exit 0
 }
 
-# Fallback: start the downloaded executable even if replacement failed.
-Start-Process -FilePath $NewExe
-exit 0
+Write-UpdateLog "ERROR: Could not replace $TargetExe. Downloaded file remains at $NewExe."
+exit 1
 """,
+        encoding="utf-8",
+    )
+    log_path.write_text(
+        f"Update downloaded to {next_exe}\nWaiting for replacement and restart...\n",
         encoding="utf-8",
     )
 
@@ -196,3 +223,4 @@ exit 0
     time.sleep(0.2)
     if helper.poll() not in (None, 0):
         raise OSError("Update helper failed to start.")
+    return log_path
