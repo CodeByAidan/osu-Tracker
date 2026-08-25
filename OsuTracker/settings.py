@@ -40,6 +40,8 @@ class Settings:
 
 
 class SettingsDTO(TypedDict, total=False):
+    """Typed shape of raw settings.json values before validation."""
+
     endpoint: object
     client_id: object
     interval: object
