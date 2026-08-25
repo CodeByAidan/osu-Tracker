@@ -3,11 +3,11 @@
 <h3 align="center"><b><i>Better</i></b> <i>Discord Rich Presence for osu!</i></h3>
 
 <p align="center">
-   <img width="463" height="470" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/3cd37895-58c2-4632-a701-ecd7749fa334" />
+   <img width="461" height="490" alt="osu!Tracker settings" src="https://github.com/user-attachments/assets/12fb463b-687f-4e2f-8223-e77812f07e57" />
 </p>
 <p align="center">
    <img width="322" height="135" alt="osu!Tracker Discord Rich Presence" src="https://github.com/user-attachments/assets/c10620ca-b122-4155-8367-75517437976a" />
-   <img width="308" height="139" alt="osu!Tracker activity display" src="https://github.com/user-attachments/assets/6303cf7d-483d-4dbe-94da-5c8977f088af" />
+   <img width="336" height="141" alt="osu!Tracker activity display" src="https://github.com/user-attachments/assets/20f8d085-e7a8-4f6c-b970-72b928f9e0e0" />
 </p>
 
 <p align="center">
