@@ -68,7 +68,7 @@ class TrackerApp(tk.Tk):
         )
         self.title("osu!Tracker")
         try:
-            self.iconbitmap(str(resource_root / "images" / "osu-tracker.ico"))
+            self.iconbitmap(str(resource_root / "images" / "osu-tracker.ico"))  # type: ignore
         except tk.TclError:
             pass
         self.minsize(660, 560)
