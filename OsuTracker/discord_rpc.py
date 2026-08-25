@@ -70,15 +70,12 @@ class DiscordRPC:
         if self._presence is None:
             return
 
-        metadata = model.menu.bm.metadata
-        activity_state = self._activity_state(model)
+        activity_state = self.activity_state(model)
+        details = self.text_value(model, self.details_field, activity_state)
+        state = self.text_value(model, self.state_field, activity_state)
         if model.menu.state == 2:
-            details = self._text_value(model, self.details_field, activity_state)
-            state = self._text_value(model, self.state_field, activity_state)
-            large_image, large_text, large_url = self._beatmap_art(model)
+            large_image, large_text, large_url = self.beatmap_art(model)
         else:
-            details = self._text_value(model, self.details_field, activity_state)
-            state = self._text_value(model, self.state_field, activity_state)
             large_image, large_text, large_url = OSU_LOGO_URL, "osu!", None
 
         try:
@@ -92,6 +89,19 @@ class DiscordRPC:
         except Exception as error:
             print(f"Unable to update Discord RPC: {error}")
             self.close()
+
+    def beatmap_art(self, model: Model) -> tuple[str, str, str | None]:
+        """Return the image, label, and link used for a model's beatmap art."""
+        return self._beatmap_art(model)
+
+    @staticmethod
+    def text_value(model: Model, field: str, activity_state: str) -> str:
+        """Format a selected Tosu value for a Discord activity field."""
+        return DiscordRPC._text_value(model, field, activity_state)
+
+    def activity_state(self, model: Model) -> str:
+        """Return the current user-facing activity state for a Tosu model."""
+        return self._activity_state(model)
 
     @staticmethod
     def _beatmap_art(model: Model) -> tuple[str, str, str | None]:
