@@ -10,6 +10,7 @@ from textwrap import dedent
 
 import requests
 
+from OsuTracker.activity_state import activity_label, classify_activity_state
 from OsuTracker.discord_rpc import DiscordRPC
 from OsuTracker.models.tosu import Model
 from OsuTracker.settings import (
@@ -24,6 +25,10 @@ from OsuTracker.tosu import fetch_tosu_data
 
 def display_main_stats(model: Model) -> None:
     """Print the main stats from the current game state."""
+    print(
+        f"Activity: {activity_label(classify_activity_state(model))}",
+        flush=True,
+    )
     print(
         f"Current PP: {model.gameplay.pp.current} / FC PP: {model.gameplay.pp.fc}",
         flush=True,

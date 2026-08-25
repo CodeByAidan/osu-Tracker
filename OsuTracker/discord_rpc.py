@@ -4,6 +4,12 @@ from typing import Optional
 
 from pypresence.presence import Presence
 
+from OsuTracker.activity_state import (
+    STATE_MENU,
+    STATE_PLAYING,
+    activity_label,
+    classify_activity_state,
+)
 from OsuTracker.models.tosu import Model
 from OsuTracker.settings import DEFAULT_DISCORD_DETAILS, DEFAULT_DISCORD_STATE
 
@@ -140,10 +146,16 @@ class DiscordRPC:
 
     def _activity_state(self, model: Model) -> str:
         """Classify Tosu's current screen for the Discord activity."""
-        if model.menu.state != 2:
+        classified = classify_activity_state(model)
+        if classified == STATE_MENU:
             self._last_song_time = None
             self._last_song_time_seen_at = None
-            return "Scrolling for a new song"
+            return activity_label(classified)
+
+        if classified != STATE_PLAYING:
+            self._last_song_time = None
+            self._last_song_time_seen_at = None
+            return activity_label(classified)
 
         current_time = model.menu.bm.time.current
         now = time.monotonic()
