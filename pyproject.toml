@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "osu-tracker"
-version = "1.0.2"
+version = "1.0.3"
 description = "Track osu! game statistics from Tosu."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,3 +25,6 @@ osu-tracker-cli = "OsuTracker.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["OsuTracker*"]
+
+[tool.setuptools.package-data]
+OsuTracker = ["assets/azure/**/*", "assets/fonts/*", "images/*"]

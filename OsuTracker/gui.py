@@ -63,9 +63,7 @@ class TrackerApp(tk.Tk):
 
     def __init__(self, settings: Settings, settings_path: Path) -> None:
         super().__init__()
-        resource_root = Path(
-            getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent)
-        )
+        resource_root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
         theme_path = resource_root / "assets" / "azure" / "azure.tcl"
         self.tk.call("source", str(theme_path))
         self.tk.call("set_theme", "dark")

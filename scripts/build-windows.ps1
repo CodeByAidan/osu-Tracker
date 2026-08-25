@@ -20,10 +20,10 @@ try {
         --onefile `
         --windowed `
         --name osu-tracker `
-        --icon images/osu-tracker.ico `
-        --add-data "images/osu-tracker.ico;images" `
-        --add-data "assets/azure;assets/azure" `
-        --add-data "assets/fonts;assets/fonts" `
+        --icon OsuTracker/images/osu-tracker.ico `
+        --add-data "OsuTracker/images/osu-tracker.ico;images" `
+        --add-data "OsuTracker/assets/azure;assets/azure" `
+        --add-data "OsuTracker/assets/fonts;assets/fonts" `
         --collect-all pydantic `
         --collect-all pypresence `
         OsuTracker/__main__.py
