@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -143,19 +144,39 @@ def begin_windows_self_update(download_url: str) -> None:
 $ErrorActionPreference = "Stop"
 
 try {
-    Wait-Process -Id $PidToWait -Timeout 30 -ErrorAction SilentlyContinue
+    Wait-Process -Id $PidToWait -Timeout 90 -ErrorAction SilentlyContinue
 } catch {}
 
-Move-Item -Path $NewExe -Destination $TargetExe -Force
-Start-Process -FilePath $TargetExe
+$replaced = $false
+$deadline = (Get-Date).AddSeconds(30)
+
+while (-not $replaced -and (Get-Date) -lt $deadline) {
+    try {
+        Move-Item -Path $NewExe -Destination $TargetExe -Force
+        $replaced = $true
+    } catch {
+        Start-Sleep -Milliseconds 300
+    }
+}
+
+if ($replaced) {
+    Start-Process -FilePath $TargetExe
+    exit 0
+}
+
+# Fallback: start the downloaded executable even if replacement failed.
+Start-Process -FilePath $NewExe
+exit 0
 """,
         encoding="utf-8",
     )
 
     creation_flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-    subprocess.Popen(
+    creation_flags |= getattr(subprocess, "DETACHED_PROCESS", 0)
+    creation_flags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    helper = subprocess.Popen(
         [
-            "powershell",
+            "powershell.exe",
             "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
@@ -170,3 +191,8 @@ Start-Process -FilePath $TargetExe
         ],
         creationflags=creation_flags,
     )
+
+    # Guard against false-success UI messages when helper startup fails.
+    time.sleep(0.2)
+    if helper.poll() not in (None, 0):
+        raise OSError("Update helper failed to start.")
