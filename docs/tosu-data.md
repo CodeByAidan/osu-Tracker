@@ -117,6 +117,8 @@ uses these aliases:
 | `"0"`                    | `state.gameplay.hits.field_0` or `state.resultsScreen.field_0` |
 | `"50"`, `"100"`, `"300"` | corresponding `field_50`, `field_100`, `field_300`             |
 | `"_isReplayUiHidden"`    | `state.gameplay.isReplayUiHidden`                              |
+| `"sliderEnds"` or `"sliderEndHits"` | `state.gameplay.hits.sliderEndHits`             |
+| `"sliderTickHits"` or `"smallTickHits"` | `state.gameplay.hits.smallTickHits`         |
 
 To serialize a model back using Tosu's original key names:
 
@@ -126,10 +128,10 @@ json_data = state.model_dump(by_alias=True)
 
 ## Model Validation
 
-`fetch_tosu_data` returns the validated `Model` directly. The Pydantic model is
-intentionally strict for known fields. If Tosu changes its response shape,
-validation reports the exact path that needs updating in
-`OsuTracker/models/tosu.py`.
+`fetch_tosu_data` returns a normalized `Model` directly. Fields that Tosu adds,
+removes, renames, or reports with fractional values should not prevent the
+tracker from reading the rest of the response; version-specific fields have
+compatible aliases or defaults in `OsuTracker/models/tosu.py`.
 
 ## Discord Text Options
 

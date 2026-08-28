@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class TosuModel(BaseModel):
@@ -95,7 +95,7 @@ class Series(TosuModel):
 
 class StrainsAll(TosuModel):
     series: list[Series]
-    xaxis: list[int]
+    xaxis: list[float]
 
 
 class Pp(TosuModel):
@@ -146,9 +146,15 @@ class Hits(TosuModel):
     field_300: int = Field(alias="300")
     geki: int
     katu: int
-    sliderEndHits: int
-    smallTickHits: int
-    largeTickHits: int
+    sliderEndHits: int = Field(
+        default=0,
+        validation_alias=AliasChoices("sliderEndHits", "sliderEnds"),
+    )
+    smallTickHits: int = Field(
+        default=0,
+        validation_alias=AliasChoices("smallTickHits", "sliderTickHits"),
+    )
+    largeTickHits: int = 0
     sliderBreaks: int
     grade: Grade
     unstableRate: float
