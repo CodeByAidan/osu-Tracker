@@ -82,6 +82,8 @@ class TrackerApp(tk.Tk):
         self.status = tk.StringVar(
             value="Ready. Configure settings, then start tracking."
         )
+        self.error_panel: ttk.Frame | None = None
+        self.error_text: tk.Text | None = None
         self.current_version = current_version()
         self.preview_state_tracker = DiscordRPC(settings.client_id)
         self.preview: RichPresencePreview | None = None
@@ -124,9 +126,38 @@ class TrackerApp(tk.Tk):
             column=0, row=2, columnspan=3, sticky="w", pady=(0, 12)
         )
 
+        self.error_panel = ttk.Frame(container)
+        self.error_panel.columnconfigure(0, weight=1)
+        self.error_text = tk.Text(
+            self.error_panel,
+            height=6,
+            width=1,
+            wrap=tk.WORD,
+            state="disabled",
+            takefocus=False,
+            bg="#2b2b2b",
+            fg="#ff66aa",
+            insertbackground="#ff66aa",
+            relief="flat",
+            padx=4,
+            pady=4,
+        )
+        error_scrollbar = ttk.Scrollbar(
+            self.error_panel,
+            orient="vertical",
+            command=lambda *args: self.error_text.yview(*args)
+            if self.error_text is not None
+            else None,
+        )
+        self.error_text.configure(yscrollcommand=error_scrollbar.set)
+        self.error_text.grid(column=0, row=0, sticky="nsew")
+        error_scrollbar.grid(column=1, row=0, sticky="ns")
+        self.error_panel.grid(column=0, row=3, columnspan=3, sticky="nsew")
+        self.error_panel.grid_remove()
+
         self.preview = RichPresencePreview(container, self.preview_state_tracker)
-        self.preview.grid(column=0, row=3, columnspan=3, sticky="nsew")
-        container.rowconfigure(3, weight=1)
+        self.preview.grid(column=0, row=4, columnspan=3, sticky="nsew")
+        container.rowconfigure(4, weight=1)
 
         self.update_panel = UpdatePanel(
             container,
@@ -135,7 +166,7 @@ class TrackerApp(tk.Tk):
             self._check_for_update,
             self._start_update,
         )
-        self.update_panel.grid(column=0, row=4, columnspan=3, sticky="ew", pady=(10, 0))
+        self.update_panel.grid(column=0, row=5, columnspan=3, sticky="ew", pady=(10, 0))
 
     def _read_settings(self) -> Settings | None:
         return self.settings_form.read() if self.settings_form is not None else None
@@ -245,10 +276,15 @@ class TrackerApp(tk.Tk):
         self.after(100, self._process_events)
 
     def _handle_event(self, event: str, value: object) -> None:
-        if event in {"status", "error"}:
+        if event == "status":
             self.status.set(str(value))
             return
+        if event == "error":
+            self.status.set("Error details (scroll to read).")
+            self._show_error(value)
+            return
         if event == "model":
+            self._hide_error()
             self._display_model(value)
             return
         if event == "stopped":
@@ -286,6 +322,21 @@ class TrackerApp(tk.Tk):
             status = self.update_panel.show_error(value)
             if status:
                 self.status.set(status)
+                self._show_error(status)
+
+    def _show_error(self, value: object) -> None:
+        if self.error_panel is None or self.error_text is None:
+            return
+        self.error_text.configure(state="normal")
+        self.error_text.delete("1.0", tk.END)
+        self.error_text.insert("1.0", str(value))
+        self.error_text.configure(state="disabled")
+        self.error_text.see("1.0")
+        self.error_panel.grid()
+
+    def _hide_error(self) -> None:
+        if self.error_panel is not None:
+            self.error_panel.grid_remove()
 
     def _handle_update_info(self, value: object) -> None:
         if self.update_panel is not None:

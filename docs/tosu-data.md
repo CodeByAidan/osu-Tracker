@@ -111,14 +111,14 @@ The model accepts both JSON aliases and Python field names.
 Some Tosu keys are not valid or convenient Python attribute names. The model
 uses these aliases:
 
-| Tosu JSON key            | Python field                                                   |
-| ------------------------ | -------------------------------------------------------------- |
-| `"90"` through `"100"`   | `state.menu.pp.field_90` through `field_100`                   |
-| `"0"`                    | `state.gameplay.hits.field_0` or `state.resultsScreen.field_0` |
-| `"50"`, `"100"`, `"300"` | corresponding `field_50`, `field_100`, `field_300`             |
-| `"_isReplayUiHidden"`    | `state.gameplay.isReplayUiHidden`                              |
-| `"sliderEnds"` or `"sliderEndHits"` | `state.gameplay.hits.sliderEndHits`             |
-| `"sliderTickHits"` or `"smallTickHits"` | `state.gameplay.hits.smallTickHits`         |
+| Tosu JSON key                           | Python field                                                   |
+| --------------------------------------- | -------------------------------------------------------------- |
+| `"90"` through `"100"`                  | `state.menu.pp.field_90` through `field_100`                   |
+| `"0"`                                   | `state.gameplay.hits.field_0` or `state.resultsScreen.field_0` |
+| `"50"`, `"100"`, `"300"`                | corresponding `field_50`, `field_100`, `field_300`             |
+| `"_isReplayUiHidden"`                   | `state.gameplay.isReplayUiHidden`                              |
+| `"sliderEnds"` or `"sliderEndHits"`     | `state.gameplay.hits.sliderEndHits`                            |
+| `"sliderTickHits"` or `"smallTickHits"` | `state.gameplay.hits.smallTickHits`                            |
 
 To serialize a model back using Tosu's original key names:
 
