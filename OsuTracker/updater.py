@@ -149,44 +149,45 @@ def begin_windows_self_update(
 
     _download_file(download_url, next_exe, progress_callback=progress_callback)
     log_path = update_dir / "update.log"
+    log_path_text = str(log_path).replace("'", "''")
 
     script_path.write_text(
-        """param(
+        f"""param(
     [Parameter(Mandatory=$true)][string]$TargetExe,
     [Parameter(Mandatory=$true)][string]$NewExe,
     [Parameter(Mandatory=$true)][int]$PidToWait
 )
 
 $ErrorActionPreference = "Stop"
-$LogPath = "{log_path}"
+$LogPath = '{log_path_text}'
 
 function Write-UpdateLog([string]$Message) {{
     "$(Get-Date -Format o) $Message" | Add-Content -Path $LogPath
 }}
 
-try {
+try {{
     Write-UpdateLog "Waiting for process $PidToWait to exit."
     Wait-Process -Id $PidToWait -Timeout 30 -ErrorAction SilentlyContinue
-} catch {}
+}} catch {{}}
 
 $replaced = $false
 $deadline = (Get-Date).AddSeconds(30)
 
-while (-not $replaced -and (Get-Date) -lt $deadline) {
-    try {
+while (-not $replaced -and (Get-Date) -lt $deadline) {{
+    try {{
         Move-Item -Path $NewExe -Destination $TargetExe -Force
         $replaced = $true
         Write-UpdateLog "Replaced $TargetExe."
-    } catch {
+    }} catch {{
         Start-Sleep -Milliseconds 300
-    }
-}
+    }}
+}}
 
-if ($replaced) {
+if ($replaced) {{
     Write-UpdateLog "Starting $TargetExe."
     Start-Process -FilePath $TargetExe
     exit 0
-}
+}}
 
 Write-UpdateLog "ERROR: Could not replace $TargetExe. Downloaded file remains at $NewExe."
 exit 1

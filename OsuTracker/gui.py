@@ -145,9 +145,9 @@ class TrackerApp(tk.Tk):
         error_scrollbar = ttk.Scrollbar(
             self.error_panel,
             orient="vertical",
-            command=lambda *args: self.error_text.yview(*args)
-            if self.error_text is not None
-            else None,
+            command=lambda *args: (
+                self.error_text.yview(*args) if self.error_text is not None else None
+            ),
         )
         self.error_text.configure(yscrollcommand=error_scrollbar.set)
         self.error_text.grid(column=0, row=0, sticky="nsew")
@@ -280,7 +280,7 @@ class TrackerApp(tk.Tk):
             self.status.set(str(value))
             return
         if event == "error":
-            self.status.set("Error details (scroll to read).")
+            self.status.set("Error details below")
             self._show_error(value)
             return
         if event == "model":
